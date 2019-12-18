@@ -171,8 +171,8 @@ class GoogleArtsCrawlerOption(object):
 
                 # not exist
                 if not os.path.isfile(webdriver_local_zip_filepath):
-                    # http = SOCKSProxyManager('socks5://localhost:1086/')
-                    http = PoolManager()
+                    http = SOCKSProxyManager('socks5://localhost:1086/')
+                    # http = PoolManager()
                     response = http.request('GET', webdriver_download_url, preload_content=False)
                     if not os.path.isdir(default_download_tmp):
                         os.mkdir(default_download_tmp)
@@ -234,6 +234,42 @@ class GoogleArtsCrawlerOption(object):
             print("==> output :{0}".format(os.path.abspath(self._output_path)))
 
         return self
+
+    def _auto_adapt_webdriver(self):
+        # https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver#requirements
+
+        WEBDRIVER_DOWNLOAD_VERSION_MAPPING = {
+            "70": 'http://chromedriver.storage.googleapis.com/70.0.3538.97/',
+            "71": 'http://chromedriver.storage.googleapis.com/71.0.3578.80/',
+            '72': 'http://chromedriver.storage.googleapis.com/72.0.3626.7/',
+            '73': 'http://chromedriver.storage.googleapis.com/73.0.3683.68/',
+            '74': 'http://chromedriver.storage.googleapis.com/74.0.3729.6/',
+            '75': 'http://chromedriver.storage.googleapis.com/75.0.3770.90/',
+            '76': 'http://chromedriver.storage.googleapis.com/76.0.3809.68/',
+            '77': 'http://chromedriver.storage.googleapis.com/77.0.3865.40/',
+            '78': 'http://chromedriver.storage.googleapis.com/78.0.3904.70/',
+            '79': 'http://chromedriver.storage.googleapis.com/79.0.3945.36/',
+            'latest': ''
+        }
+        import subprocess
+        try:
+
+            DEFAULT_LINUX_GOOGLE_CHROME_LOCATION = '/usr/bin/google-chrome'
+            with subprocess.Popen(args=[DEFAULT_LINUX_GOOGLE_CHROME_LOCATION, '--version'],
+                                  stdout=subprocess.PIPE) as sub:
+                google_chrome_version = str(sub.communicate()[0])
+                print("==> current google-chrome version is {0}".format(google_chrome_version))
+                major_version = google_chrome_version.split(" ")[2].split('.')[0]
+                print(major_version)
+        except Exception as ex:
+            print("==> current os do not install google-chrome")
+            print("==> starting install google-chrome")
+            centos_cmd = """
+            """
+            with subprocess.Popen([centos_cmd], stdout=subprocess.PIPE) as proc:
+                print(proc.communicate())
+
+        pass
 
     @property
     def url(self) -> str:
